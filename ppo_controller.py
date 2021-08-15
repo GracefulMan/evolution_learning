@@ -13,7 +13,7 @@ class ControllerTrainer:
         env = gym.make('CarRacing-v0')
         env = CarRacingEnv(env, mdir, device)
         self.args.env = PreprocessEnv(env=env)
-        self.args.env.target_return = 950  # set target_reward manually for env 'Pendulum-v0'
+        self.args.env.target_return = 950  # set target_reward manually for env 'CarRacing-v0'
         self.args.net_dim = 2 ** 7
         self.args.batch_size = self.args.net_dim * 2
         self.args.target_step = self.args.env.max_step * 16
