@@ -25,7 +25,6 @@ class DataGenerator:
         self.vae = None
         self.mdrnn = None
         self.data_dir = os.path.join(os.path.join(data_dir, 'carracing'), 'thread_1')
-        self.load_model_and_params()
         self.start_index = 0
         self.max_index = 2048
 
@@ -61,7 +60,8 @@ class DataGenerator:
             {k.strip('_l0'): v for k, v in rnn_state['state_dict'].items()})
 
     def generate_data(self, agent, rollouts=512):
-        env = gym.make("CarRacing-v0")
+        self.load_model_and_params()
+        env = gym.make("CarRacing-v0", verbose=False)
         for i in range(rollouts):
             s = env.reset()
             hidden = [
@@ -109,7 +109,7 @@ class DataGenerator:
         self.start_index += rollouts
 
     def generate_random_data(self, rollouts=1024, noise_type='brown'):  # pylint: disable=R0914
-        env = gym.make("CarRacing-v0")
+        env = gym.make("CarRacing-v0", verbose=False)
         seq_len = 1000
 
         for i in range(rollouts):
