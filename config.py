@@ -2,7 +2,7 @@
 ASIZE = 3
 
 # latent feature vector size.(obs -> feature vector)
-LSIZE = 32
+LSIZE = 64
 
 # recurrent  hidden state size
 RSIZE = 256
