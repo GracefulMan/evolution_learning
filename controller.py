@@ -17,7 +17,8 @@ from torch.multiprocessing import Process, Queue
 from tqdm import tqdm
 
 from models import Controller
-from utils.misc import RolloutGenerator, ASIZE, RSIZE, LSIZE
+from utils.misc import RolloutGenerator
+from config import ASIZE, RSIZE, LSIZE
 from utils.misc import flatten_parameters
 from utils.misc import load_parameters
 

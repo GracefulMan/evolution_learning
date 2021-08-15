@@ -12,7 +12,7 @@ from torchvision import transforms
 
 from models.mdrnn import MDRNNCell
 from models.vae import VAE
-from utils.misc import LSIZE, ASIZE, RSIZE, RED_SIZE
+from config import LSIZE, ASIZE, RSIZE, RED_SIZE
 from utils.misc import sample_continuous_policy
 
 gym.envs.box2d.car_racing.STATE_W, gym.envs.box2d.car_racing.STATE_H = 64, 64
@@ -146,9 +146,23 @@ class DataGenerator:
 
 if __name__ == '__main__':
     device = torch.device('cuda')
-    from ppo_controller import ControllerTrainer
-    ppo = ControllerTrainer(device=device)
-    datagenerator = DataGenerator(device=device)
-    ppo.train_epochs(10)
-    datagenerator.generate_random_data(1024)
+    import argparse
+    parser = argparse.ArgumentParser(description='generate datasets.')
+    parser.add_argument('--data-dir', type=str, help='datasets dirs', default='datasets')
+    parser.add_argument('--logdir', type=str, help='model saved dir', default='exp')
+    parser.add_argument('--policy', type=str, help='the random or ppo policy', default='random')
+    parser.add_argument('--rollouts', type=int, help='the num of rollouts to generate', default=1024)
+    args = parser.parse_args()
+    print(args)
+    datagenerator = DataGenerator(data_dir=args.data_dir,logdir=args.logdir, device=device)
+    if args.policy == 'random':
+        datagenerator.generate_random_data(args.rollouts)
+    else:
+        from ppo_controller import ControllerTrainer
+        ppo = ControllerTrainer(device=device)
+        datagenerator.generate_data(ppo.args.agent, args.rollouts)
+
+
+
+
 

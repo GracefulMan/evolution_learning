@@ -211,6 +211,14 @@ class MDRNNTrainer:
         return cur_best
 
 if __name__ == '__main__':
-    mdrnn = MDRNNTrainer()
-    cur_best = mdrnn.train_mdrnn(10)
-    cur_best=mdrnn.train_mdrnn(30, cur_best)
+    import argparse
+    parser = argparse.ArgumentParser(description='Mdrnn Module')
+    parser.add_argument('--batch-size', type=int, help='train batch size',default=32)
+    parser.add_argument('--seq-len', type=int, help='lstm sequence length', default=32)
+    parser.add_argument('--retrain', type=bool, help='retrain the model', default=False)
+    parser.add_argument('--use-reward', type=bool, help='use the reward to train forward model', default=True)
+    parser.add_argument('--epochs', type=int, help='train epochs', default=30)
+    args = parser.parse_args()
+    print(args)
+    mdrnn = MDRNNTrainer(batch_size=args.batch_size, seq_len=args.seq_len,noreload=args.retrain, include_reward=args.use_reward)
+    mdrnn.train_mdrnn(args.epochs)

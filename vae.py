@@ -13,9 +13,8 @@ from utils.loaders import RolloutObservationDataset
 from models.vae import VAE
 from utils.learning import EarlyStopping
 from utils.learning import ReduceLROnPlateau
-from utils.misc import LSIZE, RED_SIZE
 from utils.misc import save_checkpoint
-
+from config import LSIZE, RED_SIZE
 torch.manual_seed(123)
 # Fix numeric divergence due to bug in Cudnn
 torch.backends.cudnn.benchmark = True
@@ -159,6 +158,12 @@ class VaeTrainer:
         return cur_best
 
 if __name__ == "__main__":
-    Vae = VaeTrainer()
-    current_best = None
-    current_best = Vae.train_vae(10, current_best)
+    import argparse
+    parser = argparse.ArgumentParser(description='VAE Module')
+    parser.add_argument('--batch-size', type=int, help='train batch size',default=32)
+    parser.add_argument('--retrain', type=bool, help='retrain the model', default=False)
+    parser.add_argument('--epochs', type=int, help='train epochs', default=30)
+    args = parser.parse_args()
+    print(args)
+    Vae = VaeTrainer(batch_size=args.batch_size, noreload=args.retrain)
+    Vae.train_vae(args.epochs)

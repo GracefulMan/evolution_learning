@@ -4,7 +4,7 @@ from utils.env_wrapper import CarRacingEnv
 import torch
 
 class ControllerTrainer:
-    def __init__(self, mdir='exp',  device=None):
+    def __init__(self, mdir='exp',device=None):
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu') if device is None else device
         self.args = Arguments(if_on_policy=True)  # hyper-parameters of on-policy is different from off-policy
         self.args.agent = AgentPPO()
