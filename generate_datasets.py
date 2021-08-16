@@ -24,7 +24,7 @@ class DataGenerator:
         self.device = device
         self.vae = None
         self.mdrnn = None
-        self.data_dir = os.path.join(os.path.join(data_dir, 'carracing'), 'thread_1')
+        self.data_dir = os.path.join(data_dir, 'carracing')
         self.start_index = 0
         self.max_index = 2048
 
@@ -100,7 +100,7 @@ class DataGenerator:
 
                 if done:
                     print("> End of rollout {}, {} frames...".format(i, len(s_rollout)))
-                    np.savez(join(self.data_dir, 'rollout_{}'.format((i + self.start_index) % self.max_index)),
+                    np.savez(join(join(self.data_dir,'thread_0'), 'rollout_{}'.format((i + self.start_index) % self.max_index)),
                              observations=np.array(s_rollout),
                              rewards=np.array(r_rollout),
                              actions=np.array(a_rollout),
@@ -108,10 +108,10 @@ class DataGenerator:
                     break
         self.start_index += rollouts
 
-    def generate_random_data(self, rollouts=1024, noise_type='brown'):  # pylint: disable=R0914
+    def generate_random_data(self, rollouts=1024, noise_type='brown', dir_name='thread_1'):  # pylint: disable=R0914
         env = gym.make("CarRacing-v0", verbose=False)
         seq_len = 1000
-
+        save_dir = join(self.data_dir, dir_name)
         for i in range(rollouts):
             env.reset()
             env.env.viewer.window.dispatch_events()
@@ -128,21 +128,32 @@ class DataGenerator:
             while True:
                 action = a_rollout[t]
                 t += 1
-
                 s, r, done, _ = env.step(action)
                 env.env.viewer.window.dispatch_events()
                 s_rollout += [s]
                 r_rollout += [r]
                 d_rollout += [done]
                 if done:
-                    print("> End of rollout {}, {} frames...".format(i, len(s_rollout)))
-                    np.savez(join(self.data_dir, 'rollout_{}'.format((self.start_index + i) % self.max_index)),
+                    print(">worker:{} End of rollout {}, {} frames...".format(dir_name,i, len(s_rollout)))
+                    np.savez(join(save_dir, 'rollout_{}'.format((self.start_index + i) % self.max_index)),
                              observations=np.array(s_rollout),
                              rewards=np.array(r_rollout),
                              actions=np.array(a_rollout),
                              terminals=np.array(d_rollout))
                     break
         self.start_index += rollouts
+
+
+
+
+    def multiworker(self, workers, rollouts, noise_type):
+        from multiprocessing import Pool
+        pool = Pool(workers)
+        for i in range(workers):
+            pool.apply_async(self.generate_random_data, args=(rollouts, noise_type, i))
+
+
+
 
 if __name__ == '__main__':
     device = torch.device('cuda')
@@ -151,7 +162,8 @@ if __name__ == '__main__':
     parser.add_argument('--data-dir', type=str, help='datasets dirs', default='datasets')
     parser.add_argument('--logdir', type=str, help='model saved dir', default='exp')
     parser.add_argument('--policy', type=str, help='the random or ppo policy', default='random')
-    parser.add_argument('--rollouts', type=int, help='the num of rollouts to generate', default=1024)
+    parser.add_argument('--rollouts', type=int, help='the num of rollouts to generate', default=512)
+    parser.add_argument('--worker', type=int, default=8)
     args = parser.parse_args()
     print(args)
     datagenerator = DataGenerator(data_dir=args.data_dir,logdir=args.logdir, device=device)
