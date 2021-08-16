@@ -21,7 +21,7 @@ torch.backends.cudnn.benchmark = True
 
 
 class VaeTrainer:
-    def __init__(self, batch_size=64, logdir='exp', data_path='datasets\carracing', noreload=False, nosamples=False, device=None):
+    def __init__(self, batch_size=64, logdir='exp', data_path='datasets/carracing', noreload=False, nosamples=False, device=None):
         self.batch_size = batch_size
         self.logdir = logdir
         self.noreload = noreload
