@@ -150,7 +150,7 @@ class DataGenerator:
         from multiprocessing import Pool
         pool = Pool(workers)
         for i in range(workers):
-            pool.apply(self.generate_random_data, args=(rollouts, noise_type, i))
+            pool.apply_async(self.generate_random_data, args=(rollouts, noise_type, i))
         pool.close()
         pool.join()
 
