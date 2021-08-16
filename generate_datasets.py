@@ -146,7 +146,7 @@ class DataGenerator:
 
 
 
-    def multiworker(self, workers, rollouts, noise_type):
+    def multiworker(self, workers, rollouts, noise_type='brown'):
         from multiprocessing import Pool
         pool = Pool(workers)
         for i in range(workers):
@@ -168,7 +168,7 @@ if __name__ == '__main__':
     print(args)
     datagenerator = DataGenerator(data_dir=args.data_dir,logdir=args.logdir, device=device)
     if args.policy == 'random':
-        datagenerator.generate_random_data(args.rollouts)
+        datagenerator.multiworker(args.worker, args.rollouts)
     else:
         from ppo_controller import ControllerTrainer
         ppo = ControllerTrainer(device=device)
