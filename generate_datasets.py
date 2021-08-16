@@ -100,7 +100,8 @@ class DataGenerator:
 
                 if done:
                     print("> End of rollout {}, {} frames...".format(i, len(s_rollout)))
-                    np.savez(join(join(self.data_dir,'thread_0'), 'rollout_{}'.format((i + self.start_index) % self.max_index)),
+                    np.savez(join(join(self.data_dir, 'thread_0'),
+                                  'rollout_{}'.format((i + self.start_index) % self.max_index)),
                              observations=np.array(s_rollout),
                              rewards=np.array(r_rollout),
                              actions=np.array(a_rollout),
@@ -111,7 +112,7 @@ class DataGenerator:
     def generate_random_data(self, rollouts=1024, noise_type='brown', dir_name='thread_1'):  # pylint: disable=R0914
         env = gym.make("CarRacing-v0", verbose=False)
         seq_len = 1000
-        save_dir = join(self.data_dir, dir_name)
+        save_dir = join(self.data_dir, str(dir_name))
         for i in range(rollouts):
             env.reset()
             env.env.viewer.window.dispatch_events()
@@ -134,7 +135,7 @@ class DataGenerator:
                 r_rollout += [r]
                 d_rollout += [done]
                 if done:
-                    print(">worker:{} End of rollout {}, {} frames...".format(dir_name,i, len(s_rollout)))
+                    print(">worker:{} End of rollout {}, {} frames...".format(dir_name, i, len(s_rollout)))
                     np.savez(join(save_dir, 'rollout_{}'.format((self.start_index + i) % self.max_index)),
                              observations=np.array(s_rollout),
                              rewards=np.array(r_rollout),
@@ -143,9 +144,6 @@ class DataGenerator:
                     break
         self.start_index += rollouts
 
-
-
-
     def multiworker(self, workers, rollouts, noise_type='brown'):
         from multiprocessing import Pool
         pool = Pool(workers)
@@ -153,9 +151,6 @@ class DataGenerator:
             pool.apply(self.generate_random_data, args=(rollouts, noise_type, i))
         pool.close()
         pool.join()
-
-
-
 
 
 if __name__ == '__main__':
@@ -169,15 +164,11 @@ if __name__ == '__main__':
     parser.add_argument('--worker', type=int, default=8)
     args = parser.parse_args()
     print(args)
-    datagenerator = DataGenerator(data_dir=args.data_dir,logdir=args.logdir, device=device)
+    datagenerator = DataGenerator(data_dir=args.data_dir, logdir=args.logdir, device=device)
     if args.policy == 'random':
         datagenerator.multiworker(args.worker, args.rollouts)
     else:
         from ppo_controller import ControllerTrainer
+
         ppo = ControllerTrainer(device=device)
         datagenerator.generate_data(ppo.args.agent, args.rollouts)
-
-
-
-
-
