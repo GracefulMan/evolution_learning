@@ -113,6 +113,8 @@ class DataGenerator:
         env = gym.make("CarRacing-v0", verbose=False)
         seq_len = 1000
         save_dir = join(self.data_dir, str(dir_name))
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
         for i in range(rollouts):
             env.reset()
             env.env.viewer.window.dispatch_events()
