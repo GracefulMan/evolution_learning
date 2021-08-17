@@ -32,7 +32,7 @@ class VaeTrainer:
         self.model = VAE(3, LSIZE).to(self.device)
         self.optimizer = optim.Adam(self.model.parameters())
         self.scheduler = ReduceLROnPlateau(self.optimizer, 'min', factor=0.5, patience=5)
-        self.earlystopping = EarlyStopping('min', patience=50)
+        self.earlystopping = EarlyStopping('min', patience=30)
         self.load_state_dict()
 
     def data_loader(self):
@@ -160,9 +160,9 @@ class VaeTrainer:
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description='VAE Module')
-    parser.add_argument('--batch-size', type=int, help='train batch size',default=32)
+    parser.add_argument('--batch-size', type=int, help='train batch size',default=256)
     parser.add_argument('--retrain', type=bool, help='retrain the model', default=False)
-    parser.add_argument('--epochs', type=int, help='train epochs', default=30)
+    parser.add_argument('--epochs', type=int, help='train epochs', default=1000)
     args = parser.parse_args()
     print(args)
     Vae = VaeTrainer(batch_size=args.batch_size, noreload=args.retrain)
